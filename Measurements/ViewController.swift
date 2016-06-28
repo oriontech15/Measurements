@@ -9,18 +9,22 @@
 import UIKit
 import CoreGraphics
 
-class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWithConvertFromValue, UpdateWithConvertToValue {
+class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWithConvertFromValue, UpdateWithConvertToValue, UITextFieldDelegate {
     
-    @IBOutlet weak var volumeButton: CustomButton!
-    @IBOutlet weak var speedButton: CustomButton!
-    @IBOutlet weak var durationButton: CustomButton!
-    @IBOutlet weak var temperatureButton: CustomButton!
-    @IBOutlet weak var lengthButton: CustomButton!
-    @IBOutlet weak var speedLabel: CustomLabel!
-    @IBOutlet weak var volumeLabel: CustomLabel!
-    @IBOutlet weak var temperatureLabel: CustomLabel!
-    @IBOutlet weak var durationLabel: CustomLabel!
-    @IBOutlet weak var lengthLabel: CustomLabel!
+    var volumeButton: CustomButton!
+    var speedButton: CustomButton!
+    var durationButton: CustomButton!
+    var temperatureButton: CustomButton!
+    var lengthButton: CustomButton!
+    var speedNameLabel: CustomLabel!
+    var volumeNameLabel: CustomLabel!
+    var temperatureNameLabel: CustomLabel!
+    var durationNameLabel: CustomLabel!
+    var lengthNameLabel: CustomLabel!
+    var leftSeparatorView: UIView!
+    var rightSeparatorView: UIView!
+    
+    @IBOutlet weak var toUnitNameLabel: CustomLabel!
     @IBOutlet weak var unitTypeCollectionView: UICollectionView!
     @IBOutlet weak var secondUnitTypeCollectionView: UICollectionView!
     @IBOutlet weak var fromUnitNameLabel: CustomLabel!
@@ -31,7 +35,7 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
     @IBOutlet weak var toValueView: UIView!
     @IBOutlet weak var toLabelHolderView: UIView!
     @IBOutlet weak var fromLabelHolderView: UIView!
-        
+    
     var startingFramesSet: Bool = false
     var buttons: [CustomButton] = []
     var labels: [CustomLabel] = []
@@ -39,6 +43,12 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        addSpeedButton()
+        addVolumeButton()
+        addLengthButton()
+        addDurationButton()
+        addTemperatureButton()
         
         unitTypeCollectionView.layer.borderWidth = 1
         unitTypeCollectionView.layer.borderColor = UIColor.white().cgColor
@@ -59,14 +69,11 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
         fromValueView.layer.cornerRadius = 45
         toValueView.layer.cornerRadius = 45
         
-        volumeButton.delegate = self
-        speedButton.delegate = self
-        durationButton.delegate = self
-        temperatureButton.delegate = self
-        lengthButton.delegate = self
-        
-        labels = [volumeLabel, durationLabel, lengthLabel, speedLabel, temperatureLabel]
+        labels = [volumeNameLabel, durationNameLabel, lengthNameLabel, speedNameLabel, temperatureNameLabel]
         buttons = [volumeButton, durationButton, lengthButton, speedButton, temperatureButton]
+        
+        self.view.bringSubview(toFront: fromLabelHolderView)
+        self.view.bringSubview(toFront: toLabelHolderView)
         
         addSeperatorViews()
     }
@@ -89,15 +96,24 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
         }
     }
     
+    override func preferredStatusBarStyle() -> UIStatusBarStyle {
+        super.preferredStatusBarStyle()
+        
+        return UIStatusBarStyle.lightContent
+    }
+    
     func addSeperatorViews() {
-        let leftView = UIView(frame: CGRect(x: 0, y: 100, width: 50, height: 1))
-        let rightView = UIView(frame: CGRect(x: 132, y: 100, width: UIScreen.main().bounds.width, height: 1))
+        self.leftSeparatorView = UIView(frame: CGRect(x: 0, y: 100, width: 50, height: 1))
+        self.rightSeparatorView = UIView(frame: CGRect(x: 132, y: 100, width: UIScreen.main().bounds.width, height: 1))
         
-        leftView.backgroundColor = .white()
-        rightView.backgroundColor = .white()
+        leftSeparatorView.backgroundColor = .white()
+        rightSeparatorView.backgroundColor = .white()
         
-        self.view.addSubview(leftView)
-        self.view.addSubview(rightView)
+        leftSeparatorView.alpha = 0.0
+        rightSeparatorView.alpha = 0.0
+        
+        self.view.addSubview(leftSeparatorView)
+        self.view.addSubview(rightSeparatorView)
     }
     
     func updateLabelWithConvertFromValue(text: String) {
@@ -106,9 +122,18 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
     }
     
     func updateLabelWithConvertToValue(text: String) {
+        self.toUnitNameLabel.text = text
         print(text)
     }
     
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        // Start calculation here
+    }
     
     @IBAction func userTouchedScreen(_ sender: AnyObject) {
         
@@ -120,6 +145,88 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
         self.view.endEditing(true)
     }
     
+    func addVolumeButton() {
+        self.volumeButton = CustomButton(frame: CGRect(x: (UIScreen.main().bounds.width / 2) - 41, y: (UIScreen.main().bounds.height / 2) - 141, width: 82, height: 82))
+        volumeButton.setImage(#imageLiteral(resourceName: "Beaker"), for: UIControlState())
+        volumeButton.delegate = self
+        volumeButton.tag = 1
+        
+        self.volumeNameLabel = CustomLabel(frame: CGRect(x: volumeButton.center.x - 50, y: volumeButton.center.y + 50, width: 100, height: 22))
+        
+        volumeNameLabel.text = "Volume"
+        volumeNameLabel.textAlignment = .center
+        volumeNameLabel.textColor = .white()
+        
+        self.view.addSubview(volumeButton)
+        self.view.addSubview(volumeNameLabel)
+    }
+    
+    func addSpeedButton() {
+        self.speedButton = CustomButton(frame: CGRect(x: (UIScreen.main().bounds.width / 2) - 141, y: (UIScreen.main().bounds.height / 2) - 51, width: 82, height: 82))
+        speedButton.setImage(#imageLiteral(resourceName: "Speed"), for: UIControlState())
+        speedButton.delegate = self
+        speedButton.tag = 2
+        
+        self.speedNameLabel = CustomLabel(frame: CGRect(x: speedButton.center.x - 50, y: speedButton.center.y + 50, width: 100, height: 22))
+        
+        speedNameLabel.text = "Speed"
+        speedNameLabel.textAlignment = .center
+        speedNameLabel.textColor = .white()
+        
+        self.view.addSubview(speedButton)
+        self.view.addSubview(speedNameLabel)
+        
+    }
+    
+    func addLengthButton() {
+        self.lengthButton = CustomButton(frame: CGRect(x: (UIScreen.main().bounds.width / 2) + 59, y: (UIScreen.main().bounds.height / 2) - 51, width: 82, height: 82))
+        lengthButton.setImage(#imageLiteral(resourceName: "Ruler"), for: UIControlState())
+        lengthButton.delegate = self
+        lengthButton.tag = 3
+        
+        self.lengthNameLabel = CustomLabel(frame: CGRect(x: lengthButton.center.x - 50, y: lengthButton.center.y + 50, width: 100, height: 22))
+        
+        lengthNameLabel.text = "Length"
+        lengthNameLabel.textAlignment = .center
+        lengthNameLabel.textColor = .white()
+        
+        self.view.addSubview(lengthButton)
+        self.view.addSubview(lengthNameLabel)
+    }
+    
+    func addDurationButton() {
+        self.durationButton = CustomButton(frame: CGRect(x: (UIScreen.main().bounds.width / 2) - 101, y: (UIScreen.main().bounds.height / 2) + 69, width: 82, height: 82))
+        durationButton.setImage(#imageLiteral(resourceName: "StopWatch"), for: UIControlState())
+        durationButton.delegate = self
+        durationButton.tag = 4
+        
+        self.durationNameLabel = CustomLabel(frame: CGRect(x: durationButton.center.x - 50, y: durationButton.center.y + 50, width: 100, height: 22))
+        
+        durationNameLabel.text = "Duration"
+        durationNameLabel.textAlignment = .center
+        durationNameLabel.textColor = .white()
+        
+        self.view.addSubview(durationButton)
+        self.view.addSubview(durationNameLabel)
+    }
+    
+    func addTemperatureButton() {
+        self.temperatureButton = CustomButton(frame: CGRect(x: (UIScreen.main().bounds.width / 2) + 19, y: (UIScreen.main().bounds.height / 2) + 69, width: 82, height: 82))
+        temperatureButton.setImage(#imageLiteral(resourceName: "Thermometer"), for: UIControlState())
+        temperatureButton.delegate = self
+        temperatureButton.tag = 5
+        
+        self.temperatureNameLabel = CustomLabel(frame: CGRect(x: temperatureButton.center.x - 50, y: temperatureButton.center.y + 50, width: 100, height: 22))
+        
+        temperatureNameLabel.text = "Temperature"
+        temperatureNameLabel.textAlignment = .center
+        temperatureNameLabel.textColor = .white()
+        
+        self.view.addSubview(temperatureButton)
+        self.view.addSubview(temperatureNameLabel)
+        
+    }
+    
     func selectionMade(sender: CustomButton) {
         switch sender.tag {
         case 1:
@@ -127,14 +234,12 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
             
             if !sender.selection {
                 
-                
-                
                 UnitController.sharedController.unitSelected = .Volume
                 
                 unitTypeCollectionView.reloadData()
                 secondUnitTypeCollectionView.reloadData()
-                            
-                AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel], duration: 0.5, visible: true, completion: {
+                
+                AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel, self.toValueView, self.fromValueView, self.toLabelHolderView, self.fromLabelHolderView, self.leftSeparatorView, self.rightSeparatorView], duration: 0.5, visible: true, completion: {
                     
                     self.valueTextField.attributedPlaceholder = AttributedString(string:"0",
                                                                                  attributes:[NSForegroundColorAttributeName: UIColor.white()])
@@ -142,45 +247,53 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
                 
                 let frame = CGRect(x: 50 + 82 + 10, y: 50, width: 180, height: 60)
                 
-                AnimationEngine.animateFrame(frame: frame, view: self.volumeLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
-                                    
-                    AnimationEngine.animateFrameScale(view: self.volumeLabel, spring: true, duration: 0.5, damping: 0.3, velocity: 0.8, scaleX: 1.8, scaleY: 1.8, completion: nil)
+                AnimationEngine.animateFrame(frame: frame, view: self.volumeNameLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
+                    
+                    AnimationEngine.animateFrameScale(view: self.volumeNameLabel, spring: true, duration: 0.5, damping: 0.3, velocity: 0.8, scaleX: 1.8, scaleY: 1.8, completion: nil)
                 })
                 
-                AnimationEngine.animateAlpha(views: [self.speedLabel, self.lengthLabel, self.durationLabel, self.temperatureLabel, self.speedButton, self.durationButton, self.temperatureButton, self.lengthButton], duration: 0.2, visible: false, completion: {
+                AnimationEngine.animateAlpha(views: [self.speedNameLabel, self.lengthNameLabel, self.durationNameLabel, self.temperatureNameLabel, self.speedButton, self.durationButton, self.temperatureButton, self.lengthButton], duration: 0.2, visible: false, completion: {
                     
                     AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: true, completion: nil)
                     
-                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView], duration: 0.5, visible: true, completion: {
+                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView, self.toUnitNameLabel], duration: 0.5, visible: true, completion: {
                         
                     })
                 })
+                
+                self.speedNameLabel.alpha = 0.0
+                self.durationNameLabel.alpha = 0.0
+                self.temperatureNameLabel.alpha = 0.0
+                self.lengthNameLabel.alpha = 0.0
                 
                 volumeButton.selection = true
             } else {
                 
-                if let frame = volumeLabel.startingFrame {
+                if let frame = volumeNameLabel.startingFrame {
                     
-                    AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel], duration: 0.5, visible: false, completion: nil)
+                    AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel, self.toValueView, self.fromValueView, self.toLabelHolderView, self.fromLabelHolderView, self.leftSeparatorView, self.rightSeparatorView], duration: 0.5, visible: false, completion: nil)
                     
-                    AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: false, completion: nil)
-                    
-                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView], duration: 0.5, visible: false, completion: {
+                    AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: false, completion: {
                         
+                        self.unitTypeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: [], animated: false)
                     })
                     
-                    AnimationEngine.animateAlpha(views: [self.volumeLabel], duration: 0.3, visible: false, completion: {
+                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView, self.toUnitNameLabel], duration: 0.5, visible: false, completion: {
                         
-                        AnimationEngine.animateFrameScale(view: self.volumeLabel, spring: true, duration: 0.5, delay: 0.1, damping: 0.3, velocity: 0.8, scaleX: 1.0, scaleY: 1.0, completion: {
+                        self.secondUnitTypeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: [], animated: false)
+                    })
+                    
+                    AnimationEngine.animateAlpha(views: [self.volumeNameLabel], duration: 0.1, visible: false, completion: {
+                        
+                        AnimationEngine.animateFrameScale(view: self.volumeNameLabel, spring: true, duration: 0.5, delay: 0.1, damping: 0.3, velocity: 0.8, scaleX: 1.0, scaleY: 1.0, completion: {
                             
-                            AnimationEngine.animateFrame(frame: frame, view: self.volumeLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
+                            self.volumeNameLabel.frame = frame
                                 
-                                AnimationEngine.animateAlpha(views: [self.volumeLabel], duration: 0.2, visible: true, completion: nil)
-                            })
+                            AnimationEngine.animateAlpha(views: [self.volumeNameLabel], duration: 0.2, visible: true, completion: nil)
                         })
                     })
                     
-                    AnimationEngine.animateAlpha(views: [self.speedLabel, self.lengthLabel, self.durationLabel, self.temperatureLabel, self.speedButton, self.durationButton, self.temperatureButton, self.lengthButton], duration: 0.7, visible: true, completion: {
+                    AnimationEngine.animateAlpha(views: [self.speedNameLabel, self.lengthNameLabel, self.durationNameLabel, self.temperatureNameLabel, self.speedButton, self.durationButton, self.temperatureButton, self.lengthButton], duration: 0.7, visible: true, completion: {
                         
                     })
                     
@@ -192,28 +305,28 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
             // Speed
             
             if !sender.selection {
-
+                
                 UnitController.sharedController.unitSelected = .Speed
                 
                 unitTypeCollectionView.reloadData()
                 secondUnitTypeCollectionView.reloadData()
                 
-                AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel], duration: 0.5, visible: true, completion: {
+                AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel, self.toValueView, self.fromValueView, self.toLabelHolderView, self.fromLabelHolderView, self.leftSeparatorView, self.rightSeparatorView], duration: 0.5, visible: true, completion: {
                     
                     self.valueTextField.attributedPlaceholder = AttributedString(string:"0",
                                                                                  attributes:[NSForegroundColorAttributeName: UIColor.white()])
                 })
                 
-                let frame = CGRect(x: 50 + 82 + 10, y: 110, width: 180, height: 60)
-                AnimationEngine.animateFrame(frame: frame, view: self.speedLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
-                    AnimationEngine.animateFrameScale(view: self.speedLabel, spring: true, duration: 0.5, damping: 0.3, velocity: 0.8, scaleX: 1.8, scaleY: 1.8, completion: nil)
+                let frame = CGRect(x: 50 + 82 + 10, y: 50, width: 180, height: 60)
+                AnimationEngine.animateFrame(frame: frame, view: self.speedNameLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
+                    AnimationEngine.animateFrameScale(view: self.speedNameLabel, spring: true, duration: 0.5, damping: 0.3, velocity: 0.8, scaleX: 1.8, scaleY: 1.8, completion: nil)
                 })
                 
-                AnimationEngine.animateAlpha(views: [self.volumeLabel, self.lengthLabel, self.durationLabel, self.temperatureLabel, self.volumeButton, self.durationButton, self.temperatureButton, self.lengthButton], duration: 0.2, visible: false, completion: {
+                AnimationEngine.animateAlpha(views: [self.volumeNameLabel, self.lengthNameLabel, self.durationNameLabel, self.temperatureNameLabel, self.volumeButton, self.durationButton, self.temperatureButton, self.lengthButton], duration: 0.2, visible: false, completion: {
                     
                     AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: true, completion: nil)
                     
-                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView], duration: 0.5, visible: true, completion: {
+                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView, self.toUnitNameLabel], duration: 0.5, visible: true, completion: {
                         
                     })
                 })
@@ -221,28 +334,31 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
                 speedButton.selection = true
             } else {
                 
-                if let frame = speedLabel.startingFrame {
+                if let frame = speedNameLabel.startingFrame {
                     
-                    AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel], duration: 0.5, visible: false, completion: nil)
+                    AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel, self.toValueView, self.fromValueView, self.toLabelHolderView, self.fromLabelHolderView, self.leftSeparatorView, self.rightSeparatorView], duration: 0.5, visible: false, completion: nil)
                     
-                    AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: false, completion: nil)
-                    
-                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView], duration: 0.5, visible: false, completion: {
+                    AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: false, completion: {
                         
+                        self.unitTypeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: [], animated: false)
                     })
                     
-                    AnimationEngine.animateAlpha(views: [self.speedLabel], duration: 0.3, visible: false, completion: {
+                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView, self.toUnitNameLabel], duration: 0.5, visible: false, completion: {
                         
-                        AnimationEngine.animateFrameScale(view: self.speedLabel, spring: true, duration: 0.5, delay: 0.1, damping: 0.3, velocity: 0.8, scaleX: 1.0, scaleY: 1.0, completion: {
+                        self.secondUnitTypeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: [], animated: false)
+                    })
+                    
+                    AnimationEngine.animateAlpha(views: [self.speedNameLabel], duration: 0.1, visible: false, completion: {
+                        
+                        AnimationEngine.animateFrameScale(view: self.speedNameLabel, spring: true, duration: 0.5, delay: 0.1, damping: 0.3, velocity: 0.8, scaleX: 1.0, scaleY: 1.0, completion: {
                             
-                            AnimationEngine.animateFrame(frame: frame, view: self.speedLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
+                            self.speedNameLabel.frame = frame
                                 
-                                AnimationEngine.animateAlpha(views: [self.speedLabel], duration: 0.2, visible: true, completion: nil)
-                            })
+                            AnimationEngine.animateAlpha(views: [self.speedNameLabel], duration: 0.2, visible: true, completion: nil)
                         })
                     })
                     
-                    AnimationEngine.animateAlpha(views: [self.volumeLabel, self.lengthLabel, self.durationLabel, self.temperatureLabel, self.volumeButton, self.durationButton, self.temperatureButton, self.lengthButton], duration: 0.7, visible: true, completion: {
+                    AnimationEngine.animateAlpha(views: [self.volumeNameLabel, self.lengthNameLabel, self.durationNameLabel, self.temperatureNameLabel, self.volumeButton, self.durationButton, self.temperatureButton, self.lengthButton], duration: 0.7, visible: true, completion: {
                         
                         
                     })
@@ -255,28 +371,28 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
             // Length
             
             if !sender.selection {
-
+                
                 UnitController.sharedController.unitSelected = .Length
                 
                 unitTypeCollectionView.reloadData()
                 secondUnitTypeCollectionView.reloadData()
                 
-                AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel], duration: 0.5, visible: true, completion: {
+                AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel, self.toValueView, self.fromValueView, self.toLabelHolderView, self.fromLabelHolderView, self.leftSeparatorView, self.rightSeparatorView], duration: 0.5, visible: true, completion: {
                     
                     self.valueTextField.attributedPlaceholder = AttributedString(string:"0",
                                                                                  attributes:[NSForegroundColorAttributeName: UIColor.white()])
                 })
-
-                let frame = CGRect(x: 50 + 82 + 10, y: 110, width: 180, height: 60)
-                AnimationEngine.animateFrame(frame: frame, view: self.lengthLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
-                    AnimationEngine.animateFrameScale(view: self.lengthLabel, spring: true, duration: 0.5, damping: 0.3, velocity: 0.8, scaleX: 1.8, scaleY: 1.8, completion: nil)
+                
+                let frame = CGRect(x: 50 + 82 + 10, y: 50, width: 180, height: 60)
+                AnimationEngine.animateFrame(frame: frame, view: self.lengthNameLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
+                    AnimationEngine.animateFrameScale(view: self.lengthNameLabel, spring: true, duration: 0.5, damping: 0.3, velocity: 0.8, scaleX: 1.8, scaleY: 1.8, completion: nil)
                 })
                 
-                AnimationEngine.animateAlpha(views: [self.speedLabel, self.volumeLabel, self.durationLabel, self.temperatureLabel, self.speedButton, self.durationButton, self.temperatureButton, self.volumeButton], duration: 0.2, visible: false, completion: {
+                AnimationEngine.animateAlpha(views: [self.speedNameLabel, self.volumeNameLabel, self.durationNameLabel, self.temperatureNameLabel, self.speedButton, self.durationButton, self.temperatureButton, self.volumeButton], duration: 0.2, visible: false, completion: {
                     
                     AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: true, completion: nil)
                     
-                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView], duration: 0.5, visible: true, completion: {
+                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView, self.toUnitNameLabel], duration: 0.5, visible: true, completion: {
                         
                     })
                 })
@@ -284,28 +400,32 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
                 lengthButton.selection = true
             } else {
                 
-                if let frame = lengthLabel.startingFrame {
+                if let frame = lengthNameLabel.startingFrame {
                     
-                    AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel], duration: 0.5, visible: false, completion: nil)
+                    AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel, self.toValueView, self.fromValueView, self.toLabelHolderView, self.fromLabelHolderView, self.leftSeparatorView, self.rightSeparatorView], duration: 0.5, visible: false, completion: nil)
                     
-                    AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: false, completion: nil)
+                    AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: false, completion: {
+                        
+                        self.unitTypeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: [], animated: false)
+                    })
                     
-                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView], duration: 0.5, visible: false, completion: {
+                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView, self.toUnitNameLabel], duration: 0.5, visible: false, completion: {
+                        
+                        self.secondUnitTypeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: [], animated: false)
                         
                     })
                     
-                    AnimationEngine.animateAlpha(views: [self.lengthLabel], duration: 0.3, visible: false, completion: {
+                    AnimationEngine.animateAlpha(views: [self.lengthNameLabel], duration: 0.1, visible: false, completion: {
                         
-                        AnimationEngine.animateFrameScale(view: self.lengthLabel, spring: true, duration: 0.5, delay: 0.1, damping: 0.3, velocity: 0.8, scaleX: 1.0, scaleY: 1.0, completion: {
+                        AnimationEngine.animateFrameScale(view: self.lengthNameLabel, spring: true, duration: 0.5, delay: 0.1, damping: 0.3, velocity: 0.8, scaleX: 1.0, scaleY: 1.0, completion: {
                             
-                            AnimationEngine.animateFrame(frame: frame, view: self.lengthLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
+                            self.lengthNameLabel.frame = frame
                                 
-                                AnimationEngine.animateAlpha(views: [self.lengthLabel], duration: 0.2, visible: true, completion: nil)
-                            })
+                            AnimationEngine.animateAlpha(views: [self.lengthNameLabel], duration: 0.2, visible: true, completion: nil)
                         })
                     })
                     
-                    AnimationEngine.animateAlpha(views: [self.speedLabel, self.volumeLabel, self.durationLabel, self.temperatureLabel, self.speedButton, self.durationButton, self.temperatureButton, self.volumeButton], duration: 0.7, visible: true, completion: {
+                    AnimationEngine.animateAlpha(views: [self.speedNameLabel, self.volumeNameLabel, self.durationNameLabel, self.temperatureNameLabel, self.speedButton, self.durationButton, self.temperatureButton, self.volumeButton], duration: 0.7, visible: true, completion: {
                         
                         
                     })
@@ -324,23 +444,23 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
                 unitTypeCollectionView.reloadData()
                 secondUnitTypeCollectionView.reloadData()
                 
-                let frame = CGRect(x: 50 + 82 + 10, y: 110, width: 180, height: 60)
+                let frame = CGRect(x: 50 + 82 + 10, y: 50, width: 180, height: 60)
                 
-                AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel], duration: 0.5, visible: true, completion: {
+                AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel, self.toValueView, self.fromValueView, self.toLabelHolderView, self.fromLabelHolderView, self.leftSeparatorView, self.rightSeparatorView], duration: 0.5, visible: true, completion: {
                     
                     self.valueTextField.attributedPlaceholder = AttributedString(string:"0",
                                                                                  attributes:[NSForegroundColorAttributeName: UIColor.white()])
                 })
-
-                AnimationEngine.animateFrame(frame: frame, view: self.durationLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
-                    AnimationEngine.animateFrameScale(view: self.durationLabel, spring: true, duration: 0.5, damping: 0.3, velocity: 0.8, scaleX: 1.8, scaleY: 1.8, completion: nil)
+                
+                AnimationEngine.animateFrame(frame: frame, view: self.durationNameLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
+                    AnimationEngine.animateFrameScale(view: self.durationNameLabel, spring: true, duration: 0.5, damping: 0.3, velocity: 0.8, scaleX: 1.8, scaleY: 1.8, completion: nil)
                 })
                 
-                AnimationEngine.animateAlpha(views: [self.speedLabel, self.lengthLabel, self.volumeLabel, self.temperatureLabel, self.speedButton, self.volumeButton, self.temperatureButton, self.lengthButton], duration: 0.2, visible: false, completion: {
+                AnimationEngine.animateAlpha(views: [self.speedNameLabel, self.lengthNameLabel, self.volumeNameLabel, self.temperatureNameLabel, self.speedButton, self.volumeButton, self.temperatureButton, self.lengthButton], duration: 0.2, visible: false, completion: {
                     
                     AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: true, completion: nil)
                     
-                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView], duration: 0.5, visible: true, completion: {
+                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView, self.toUnitNameLabel], duration: 0.5, visible: true, completion: {
                         
                     })
                 })
@@ -348,28 +468,31 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
                 durationButton.selection = true
             } else {
                 
-                if let frame = durationLabel.startingFrame {
+                if let frame = durationNameLabel.startingFrame {
                     
-                    AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel], duration: 0.5, visible: false, completion: nil)
+                    AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel, self.toValueView, self.fromValueView, self.toLabelHolderView, self.fromLabelHolderView, self.leftSeparatorView, self.rightSeparatorView], duration: 0.5, visible: false, completion: nil)
                     
-                    AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: false, completion: nil)
-                    
-                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView], duration: 0.5, visible: false, completion: {
+                    AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: false, completion: {
                         
+                        self.unitTypeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: [], animated: false)
                     })
                     
-                    AnimationEngine.animateAlpha(views: [self.durationLabel], duration: 0.3, visible: false, completion: {
+                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView, self.toUnitNameLabel], duration: 0.5, visible: false, completion: {
                         
-                        AnimationEngine.animateFrameScale(view: self.durationLabel, spring: true, duration: 0.5, delay: 0.1, damping: 0.3, velocity: 0.8, scaleX: 1.0, scaleY: 1.0, completion: {
+                        self.secondUnitTypeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: [], animated: false)
+                    })
+                    
+                    AnimationEngine.animateAlpha(views: [self.durationNameLabel], duration: 0.1, visible: false, completion: {
+                        
+                        AnimationEngine.animateFrameScale(view: self.durationNameLabel, spring: true, duration: 0.5, delay: 0.1, damping: 0.3, velocity: 0.8, scaleX: 1.0, scaleY: 1.0, completion: {
                             
-                            AnimationEngine.animateFrame(frame: frame, view: self.durationLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
+                            self.durationNameLabel.frame = frame
                                 
-                                AnimationEngine.animateAlpha(views: [self.durationLabel], duration: 0.2, visible: true, completion: nil)
-                            })
+                            AnimationEngine.animateAlpha(views: [self.durationNameLabel], duration: 0.2, visible: true, completion: nil)
                         })
                     })
                     
-                    AnimationEngine.animateAlpha(views: [self.speedLabel, self.lengthLabel, self.volumeLabel, self.temperatureLabel, self.speedButton, self.volumeButton, self.temperatureButton, self.lengthButton], duration: 0.7, visible: true, completion: {
+                    AnimationEngine.animateAlpha(views: [self.speedNameLabel, self.lengthNameLabel, self.volumeNameLabel, self.temperatureNameLabel, self.speedButton, self.volumeButton, self.temperatureButton, self.lengthButton], duration: 0.7, visible: true, completion: {
                         
                         
                     })
@@ -379,6 +502,7 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
             }
             
         case 5:
+            
             if !sender.selection {
                 
                 UnitController.sharedController.unitSelected = .Temperature
@@ -386,54 +510,57 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
                 unitTypeCollectionView.reloadData()
                 secondUnitTypeCollectionView.reloadData()
                 
-                AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel], duration: 0.5, visible: true, value: 0.8, completion: {
-                
+                AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel, self.toValueView, self.fromValueView, self.toLabelHolderView, self.fromLabelHolderView, self.leftSeparatorView, self.rightSeparatorView], duration: 0.5, visible: true, value: 1.0, completion: {
+                    
                     self.valueTextField.attributedPlaceholder = AttributedString(string:"0",
-                                                                           attributes:[NSForegroundColorAttributeName: UIColor.white()])
+                                                                                 attributes:[NSForegroundColorAttributeName: UIColor.white()])
                     
                 })
                 
-                let frame = CGRect(x: 50 + 82 + 10, y: 110, width: 180, height: 60)
-                AnimationEngine.animateFrame(frame: frame, view: self.temperatureLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
-                    AnimationEngine.animateFrameScale(view: self.temperatureLabel, spring: true, duration: 0.5, damping: 0.3, velocity: 0.8, scaleX: 1.8, scaleY: 1.8, completion: nil)
+                let frame = CGRect(x: 50 + 82 + 10, y: 50, width: 180, height: 60)
+                AnimationEngine.animateFrame(frame: frame, view: self.temperatureNameLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
+                    AnimationEngine.animateFrameScale(view: self.temperatureNameLabel, spring: true, duration: 0.5, damping: 0.3, velocity: 0.8, scaleX: 1.8, scaleY: 1.8, completion: nil)
                 })
                 
-                AnimationEngine.animateAlpha(views: [self.speedLabel, self.lengthLabel, self.durationLabel, self.volumeLabel, self.speedButton, self.durationButton, self.volumeButton, self.lengthButton], duration: 0.2, visible: false, completion: {
+                AnimationEngine.animateAlpha(views: [self.speedNameLabel, self.lengthNameLabel, self.durationNameLabel, self.volumeNameLabel, self.speedButton, self.durationButton, self.volumeButton, self.lengthButton], duration: 0.2, visible: false, completion: {
                     
                     AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: true, completion: {
-                    
+                        
                     })
                     
-                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView], duration: 0.5, visible: true, completion: {
-                    
+                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView, self.toUnitNameLabel], duration: 0.5, visible: true, completion: {
+                        
                     })
                 })
                 
                 temperatureButton.selection = true
             } else {
                 
-                if let frame = temperatureLabel.startingFrame {
+                if let frame = temperatureNameLabel.startingFrame {
                     
-                    AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel], duration: 0.5, visible: false, completion: nil)
+                    AnimationEngine.animateAlpha(views: [self.valueTextField, self.resultLabel, self.toValueView, self.fromValueView, self.toLabelHolderView, self.fromLabelHolderView, self.leftSeparatorView, self.rightSeparatorView], duration: 0.5, visible: false, completion: nil)
                     
-                    AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: false, completion: nil)
-                    
-                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView], duration: 0.5, visible: false, completion: {
+                    AnimationEngine.animateAlpha(views: [self.unitTypeCollectionView, self.fromUnitNameLabel], duration: 0.5, visible: false, completion: {
                         
+                        self.unitTypeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: [], animated: false)
                     })
                     
-                    AnimationEngine.animateAlpha(views: [self.temperatureLabel], duration: 0.3, visible: false, completion: {
+                    AnimationEngine.animateAlpha(views: [self.secondUnitTypeCollectionView, self.toUnitNameLabel], duration: 0.5, visible: false, completion: {
                         
-                        AnimationEngine.animateFrameScale(view: self.temperatureLabel, spring: true, duration: 0.5, delay: 0.1, damping: 0.3, velocity: 0.8, scaleX: 1.0, scaleY: 1.0, completion: {
+                        self.secondUnitTypeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: [], animated: false)
+                    })
+                    
+                    AnimationEngine.animateAlpha(views: [self.temperatureNameLabel], duration: 0.1, visible: false, completion: {
+                        
+                        AnimationEngine.animateFrameScale(view: self.temperatureNameLabel, spring: true, duration: 0.5, delay: 0.1, damping: 0.3, velocity: 0.8, scaleX: 1.0, scaleY: 1.0, completion: {
                             
-                            AnimationEngine.animateFrame(frame: frame, view: self.temperatureLabel, spring: true, duration: 0.5, damping: 1.0, velocity: 0.8, completion: {
+                            self.temperatureNameLabel.frame = frame
                                 
-                                AnimationEngine.animateAlpha(views: [self.temperatureLabel], duration: 0.7, visible: true, completion: nil)
-                            })
+                            AnimationEngine.animateAlpha(views: [self.temperatureNameLabel], duration: 0.2, visible: true, completion: nil)
                         })
                     })
                     
-                    AnimationEngine.animateAlpha(views: [self.speedLabel, self.lengthLabel, self.durationLabel, self.volumeLabel, self.speedButton, self.durationButton, self.volumeButton, self.lengthButton], duration: 0.2, visible: true, completion: nil)
+                    AnimationEngine.animateAlpha(views: [self.speedNameLabel, self.lengthNameLabel, self.durationNameLabel, self.volumeNameLabel, self.speedButton, self.durationButton, self.volumeButton, self.lengthButton], duration: 0.2, visible: true, completion: nil)
                     
                     temperatureButton.selection = false
                 }
@@ -446,25 +573,25 @@ class ViewController: UIViewController, CustomButtonSelectionDelegate, UpdateWit
     
     
     
-//    func measureTemp() {
-//        var temperature = Measurement(value: 73, unit: UnitTemperature.fahrenheit)
-//        print("\n\(round( 10 * temperature.value) / 10) ºF")
-//        temperature.convert(to: UnitTemperature.celsius)
-//        print(temperature)
-//        
-//        temperature.convert(to: UnitTemperature.celsius)
-//        print("\n\(round( 10 * temperature.value) / 10) ºC")
-//    }
-//    
-//    func measureCups() {
-//        var cups = Measurement(value: 10, unit: UnitVolume.cups)
-//        print("\n\(round(10 * cups.value) / 10) Cups")
-//        cups.convert(to: UnitVolume.gallons)
-//        print("\n\(round(10 * cups.value) / 10) Gallons")
-//        cups.convert(to: UnitVolume.fluidOunces)
-//        print("\n\(round(10 * cups.value) / 10) Fluid Ounces")
-//        cups.convert(to: UnitVolume.pints)
-//        print("\n\(round(10 * cups.value) / 10) Pints")
-//    }
+    //    func measureTemp() {
+    //        var temperature = Measurement(value: 73, unit: UnitTemperature.fahrenheit)
+    //        print("\n\(round( 10 * temperature.value) / 10) ºF")
+    //        temperature.convert(to: UnitTemperature.celsius)
+    //        print(temperature)
+    //
+    //        temperature.convert(to: UnitTemperature.celsius)
+    //        print("\n\(round( 10 * temperature.value) / 10) ºC")
+    //    }
+    //
+    //    func measureCups() {
+    //        var cups = Measurement(value: 10, unit: UnitVolume.cups)
+    //        print("\n\(round(10 * cups.value) / 10) Cups")
+    //        cups.convert(to: UnitVolume.gallons)
+    //        print("\n\(round(10 * cups.value) / 10) Gallons")
+    //        cups.convert(to: UnitVolume.fluidOunces)
+    //        print("\n\(round(10 * cups.value) / 10) Fluid Ounces")
+    //        cups.convert(to: UnitVolume.pints)
+    //        print("\n\(round(10 * cups.value) / 10) Pints")
+    //    }
 }
 

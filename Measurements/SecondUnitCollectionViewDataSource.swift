@@ -9,13 +9,13 @@
 import Foundation
 import UIKit
 
-protocol UpdateWithConvertToValue {
+protocol UpdateWithConvertToValue: class {
     func updateLabelWithConvertToValue(text: String)
 }
 
 class SecondUnitCollectionViewDataSource: NSObject, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UIScrollViewDelegate {
     
-    var convertToDelegate: UpdateWithConvertToValue?
+    weak var convertToDelegate: UpdateWithConvertToValue?
     
     @IBOutlet weak var secondCollectionView: UICollectionView!
     

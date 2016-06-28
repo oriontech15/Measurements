@@ -23,10 +23,14 @@ class CustomButton: UIButton {
         setupButton()
     }
     
-    override func awakeFromNib() {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setupButton()
-        
         self.addTarget(self, action: #selector(moveToPosition), for: .touchUpInside)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
     }
     
     func setupButton() {
